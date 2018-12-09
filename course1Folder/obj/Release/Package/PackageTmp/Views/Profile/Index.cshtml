@@ -1,0 +1,54 @@
+﻿@model course1Folder.Models.ProfileModel
+@{
+    ViewBag.Title = "Профиль";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(function () {
+        $(document).on("click", ".doFind", function () {
+
+            var inputNick = $('.nickValue').val();
+            //alert("clicked"+inputNick);
+
+            $.get('@Url.Action("FindUser")', { nick: inputNick }).done(function (res) {
+                if ($('div').is('.resultUser')) {
+                    $('.resultUser').remove();
+                }
+                $(".form-search").after(res);
+                //alert('appended result');
+            });
+        });
+        $(document).on("click", ".subscribeButton", function () {
+            var subToId = $('.resultUser').data('subTo');
+            var currUserId = @Model.User.Id;
+            $.get('@Url.Action("AddSubcribtion")', { userId:currUserId, subTo:subToId }).done(function (res) {
+                if(res.Added){
+                    
+                    $('.subscribersCountNumber').html(+$('.subscribersCountNumber').html()+1);
+                    $('.subscribeButton').html('Отписаться');
+                    alert('added alo');
+                }
+                else{
+                    
+                    $('.subscribersCountNumber').html(+$('.subscribersCountNumber').html()-1);
+                    $('.subscribeButton').html('Подписаться');
+                    alert('unsubed');
+                }
+            });
+        });
+
+    });
+</script>
+
+<h2>Добро пожаловать, @Model.User.Nickname</h2> 
+
+<form class="form-search">
+    <div class="searchLayer">Найти пользователя</div>
+    <input type="text" class="input-medium search-query nickValue">
+    <div class="btn doFind">Найти</div>
+</form>
+
+<div>
+    @Html.ActionLink("Редактировать профиль", "EditProfile")
+</div>
+

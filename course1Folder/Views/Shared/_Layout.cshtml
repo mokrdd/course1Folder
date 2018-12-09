@@ -1,0 +1,178 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="http://twitter.github.com/hogan.js/builds/3.0.1/hogan-3.0.1.js"></script>
+    <title>@ViewBag.Title</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.1.1.min.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
+    <script src="~/Scripts/postsScripts.js"></script>
+    <link rel="stylesheet" href="~/Content/styles.css">
+</head>
+<body>
+    
+    <script>
+
+    var currentPage = 0;
+    function InitForm() {
+        $("#CreateForm").html("");
+    }
+
+    function NextPage() {
+        var nextPage = currentPage + 1;
+        $.get("@Url.Action("GetPosts","Post")", { page: nextPage }).done(function (res) {
+            $("#MainContainer").append(res);
+            currentPage = nextPage;
+        });
+    }
+
+
+    function AddLike() {
+        var post = $(this).closest(".postInfo");
+        var postId = post.data("post-id");
+        var sel = ".postInfo[data-post-id=\"" + postId + "\"]";
+        var elem = $(sel);
+
+        var numOfLikes = $(this).closest(".postInfo").find(".exactlyNumberOfLikes").text();
+
+
+        $.post('@Url.Action("LikePost", "Post")', { id: postId }).done(function (res) {
+            if (res.Success) {
+                if (res.Added) {
+                    elem.find('.likeImage').addClass('userLiked').removeClass('userDidntLike');
+                    elem.find(".exactlyNumberOfLikes").text(parseInt(numOfLikes) + 1);
+                }
+                else {
+                    elem.find('.likeImage').addClass('userDidntLike').removeClass('userLiked');
+                    elem.find(".exactlyNumberOfLikes").text(parseInt(numOfLikes) - 1);
+                }
+
+            }
+        });
+    }
+
+    function Create() {
+        $.get("@Url.Action("Create", "Post")").done(function (res) {
+            $("#CreateForm").html(res);
+        });
+    }
+
+    function getFormData(selector) {
+        var $form = $(selector);
+        const unindexedArray = $form.find(':input').serializeArray();
+        const indexedArray = {};
+
+        $.map(unindexedArray, function (n) {
+            indexedArray[n.name] = n.value.trim();
+        });
+
+        return indexedArray;
+    }
+
+
+    function ExistInit(a) {
+        if (a == '0') {
+            $(".next_link").hide();
+        }
+    }
+
+    function openModalPost() {
+        var postId = $(this).closest('.PostWrapper').data("post-id");
+        alert(postId);
+        $.get("@Url.Action("GetPostFull", "Post")", { id: postId }).done(function (res) {
+            $('.modal-body').append(res);
+            $('.slider').slick({
+                nextArrow: $(".slideRight"),
+                prevArrow: $(".slideLeft"),
+                speed: 10
+            });
+        });
+
+        $('#postModal').modal('show');
+        //слайдер отказывается показывать фотки, пока не сменишь слайд
+        $('#postModal').on('shown.bs.modal', function () {
+            $(".slideLeft").click();
+            $(".slideRight").click();
+
+        });
+    }
+
+
+    $(function () {
+        $("#postModal").on("hidden.bs.modal", function () {
+            $('.modal-body').empty();
+            $('body').css({'overflow-y':'auto'});
+            $('.slider').unslick();
+        });
+        $(document).on("click", ".doLikeBlock", AddLike);
+        $(document).on("click", ".PostImages", openModalPost);
+        $(document).on("click", ".PhotosCount", openModalPost);
+        $(document).on("click", ".PostCommentsCount", openModalPost);
+        $(document).on("click", ".PostDate", openModalPost);
+        $(document).on("click", ".addCommentButton", SendCommentTextClick)
+    });
+
+    function RenderCommentHtml(data) {
+        var temp = $("#ComTemplate").html();
+        var template = Hogan.compile(temp);
+        return template.render(data);
+    }
+
+    function SendCommentTextClick(e) {
+        e.preventDefault();
+
+        var post = $(this).closest(".fullPostContainer");
+        var comInput = post.find(".CommentText");
+        var postId = post.data("post-id");
+        alert(postId+" "+comInput.val())
+
+        $.post('@Url.Action("AddComment", "Post")', { postId: postId, commentText: comInput.val() }).done(function (res) {
+            if (res.Success) {
+                post.find(".existingComments").append(RenderCommentHtml({ Comments: [res.Result] }))
+                comInput.val('');
+            }
+
+
+        });
+    }
+
+    </script>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("Имя приложения", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                @Html.ActionLink("Регистрация", "Registration", "User", new { area = "" }, new { @class = "navbar-brand" })
+                @Html.ActionLink("Логин", "Login", "User", new { area = "" }, new { @class = "navbar-brand" })
+                @Html.ActionLink("Лента", "Index", "Post", new { area = "" }, new { @class = "navbar-brand" })
+                @Html.ActionLink("Профиль", "Index", "Profile", new { area = "" }, new { @class = "navbar-brand" })
+
+            </div>
+            
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year – приложение ASP.NET</p>
+        </footer>
+    </div>
+
+    <script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+</body>
+</html>

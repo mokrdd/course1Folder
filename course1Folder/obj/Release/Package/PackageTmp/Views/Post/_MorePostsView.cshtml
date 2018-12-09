@@ -1,0 +1,8 @@
+﻿@model course1Folder.Models.FeedModel
+@foreach (var post in Model.Posts)
+{
+    Html.RenderPartial("_PostView", post);
+}
+<script>
+    ExistInit('@(Model.NextExist?1:0)')
+</script>

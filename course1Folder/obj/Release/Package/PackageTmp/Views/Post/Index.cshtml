@@ -1,0 +1,205 @@
+﻿@model course1Folder.Models.FeedModel
+
+<script type="text/template" id="ComTemplate">
+    @Html.Raw(Html.Partial("_commentTemplate"))
+</script>
+
+<script>
+
+    var currentPage = 0;
+    function InitForm() {
+        $("#CreateForm").html("");
+    }
+
+    function NextPage() {
+        var nextPage = currentPage + 1;
+        $.get("@Url.Action("GetPosts")", { page: nextPage }).done(function (res) {
+            $("#MainContainer").append(res);
+            currentPage = nextPage;
+        });
+    }
+
+
+    function AddLike() {
+        var post = $(this).closest(".postInfo");
+        var postId = post.data("post-id");
+        var sel = ".postInfo[data-post-id=\"" + postId + "\"]";
+        var elem = $(sel);
+       
+        var numOfLikes = $(this).closest(".postInfo").find(".exactlyNumberOfLikes").text();
+
+
+        $.post('@Url.Action("LikePost")', { id: postId }).done(function (res) {
+            if (res.Success) {
+                if (res.Added) {
+                    elem.find('.likeImage').addClass('userLiked').removeClass('userDidntLike');
+                    elem.find(".exactlyNumberOfLikes").text(parseInt(numOfLikes) + 1);
+                }
+                else {
+                    elem.find('.likeImage').addClass('userDidntLike').removeClass('userLiked');
+                    elem.find(".exactlyNumberOfLikes").text(parseInt(numOfLikes) - 1);
+                }
+
+            }
+        });
+    }
+
+    function Create() {
+        $.get("@Url.Action("Create")").done(function (res) {
+            $("#CreateForm").html(res);
+        });
+    }
+
+    function getFormData(selector) {
+        var $form = $(selector);
+        const unindexedArray = $form.find(':input').serializeArray();
+        const indexedArray = {};
+
+        $.map(unindexedArray, function (n) {
+            indexedArray[n.name] = n.value.trim();
+        });
+
+        return indexedArray;
+    }
+
+
+    function ExistInit(a) {
+        if (a == '0') {
+            $(".next_link").hide();
+        }
+    }
+
+    function openModalPost() {
+        var postId = $(this).closest('.PostWrapper').data("post-id");
+        alert(postId);
+        $.get("@Url.Action("GetPostFull")", { id: postId }).done(function (res) {
+            $('.modal-body').append(res);
+            $('.slider').slick({
+                nextArrow: $(".slideRight"),
+                prevArrow: $(".slideLeft"),
+                speed: 10
+            });
+        });
+
+
+        $('#postModal').modal('show');
+        //слайдер отказывается показывать фотки, пока не сменишь слайд
+        $('#postModal').on('shown.bs.modal', function () {
+            $(".slideLeft").click();
+            //$(".slideRight").click();
+
+        });
+    }
+
+
+    $(function () {
+        $("#postModal").on("hidden.bs.modal", function () {
+            $('.modal-body').empty();
+            $('.slider').unslick();
+        });
+        $(document).on("click", ".doLikeBlock", AddLike);
+        $(document).on("click", ".PostImages", openModalPost);
+        $(document).on("click", ".PhotosCount", openModalPost);
+        $(document).on("click", ".PostCommentsCount", openModalPost);
+        $(document).on("click", ".PostDate", openModalPost);
+        $(document).on("click", ".addCommentButton", SendCommentTextClick)
+    });
+
+    function RenderCommentHtml(data) {
+        var temp = $("#ComTemplate").html();
+        var template = Hogan.compile(temp);
+        return template.render(data);
+    }
+
+    function SendCommentTextClick(e) {
+        e.preventDefault();
+
+        var post = $(this).closest(".fullPostContainer");
+        var comInput = post.find(".CommentText");
+        var postId = post.data("post-id");
+        alert(postId+" "+comInput.val())
+
+        $.post('@Url.Action("AddComment")', { postId: postId, commentText: comInput.val() }).done(function (res) {
+            if (res.Success) {
+                post.find(".existingComments").append(RenderCommentHtml({ Comments: [res.Result] }))
+                comInput.val('');
+            }
+
+
+        });
+    }
+
+    
+
+
+</script>
+<style>
+    .exactlyNumberOfLikes {
+        display: inline-block;
+    }
+
+    .PostWrapper {
+        display: inline-block;
+    }
+
+    .Img_Preview {
+        max-width: 150px;
+        max-height: 150px;
+        border-radius: 15px;
+        cursor: crosshair;
+    }
+
+        .Img_Preview:hover {
+            border: 2px dashed red;
+        }
+
+    .PostDiv {
+        border: 2px blue solid;
+    }
+</style>
+<a href="javascript:void(0);" onclick="Create();">Create</a>
+<div id="CreateForm">
+</div>
+<div id="MainContainer" class="container">
+    @if (Model.Posts != null)
+    {
+        if (Model.Posts.Count != 0)
+        {
+            foreach (var post in Model.Posts)
+            {
+                Html.RenderPartial("_PostView", post);
+            }
+        }
+        else
+        {
+            <h1>У пользователей, на которых Вы подписаны, нет постов :(</h1>
+        }
+
+    }
+    else
+    {
+        <h1>У вас нет подписок :(</h1>
+    }
+</div>
+@if (Model.NextExist)
+{
+    <a href="javascript:void(0);" class="next_link" onclick="NextPage()">Next...</a>
+}
+
+<!-- Modal -->
+<div id="postModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+
+            </div>
+        </div>
+
+    </div>
+</div>
+

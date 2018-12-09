@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="75a292a118fb4285aa07ff6662caff0d" Name="Diagram1">
+        <EntityTypeShape EntityType="instDBModel.Comments" Width="1.5" PointX="5.25" PointY="12.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="instDBModel.Likes" Width="1.5" PointX="5.25" PointY="9.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="instDBModel.Photos" Width="1.5" PointX="8.25" PointY="12.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="instDBModel.PostPicture" Width="1.5" PointX="10.5" PointY="14.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="instDBModel.Posts" Width="1.5" PointX="3" PointY="16.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="instDBModel.PostTags" Width="1.5" PointX="5.25" PointY="17.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="instDBModel.Subscribes" Width="1.5" PointX="3" PointY="20.25" IsExpanded="true" />
+        <EntityTypeShape EntityType="instDBModel.Users" Width="1.5" PointX="0.75" PointY="7.625" IsExpanded="true" />
+        <AssociationConnector Association="instDBModel.FK_Comments_Posts" ManuallyRouted="false" />
+        <AssociationConnector Association="instDBModel.FK_Comments_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="instDBModel.FK_Likes_Posts" ManuallyRouted="false" />
+        <AssociationConnector Association="instDBModel.FK_Likes_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="instDBModel.FK_Photos_Posts" ManuallyRouted="false" />
+        <AssociationConnector Association="instDBModel.FK_Photos_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="instDBModel.FK_PostPicture_Photos" ManuallyRouted="false" />
+        <AssociationConnector Association="instDBModel.FK_PostPicture_Posts" ManuallyRouted="false" />
+        <AssociationConnector Association="instDBModel.FK_Posts_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="instDBModel.FK_PostTags_Posts" ManuallyRouted="false" />
+        <AssociationConnector Association="instDBModel.FK_Subscribes_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="instDBModel.FK_Subscribes_Users1" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

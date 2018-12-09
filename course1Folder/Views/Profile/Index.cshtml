@@ -1,0 +1,130 @@
+﻿@model course1Folder.Models.ProfileModel
+@{
+    ViewBag.Title = "Профиль";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script type="text/template" id="ComTemplate">
+    @Html.Raw(Html.Partial("_commentTemplate"))
+</script>
+<script>
+    
+    $(function () {
+        $(document).on("click", ".doFind", function () {
+            $('.userResponce').remove();
+            var inputNick = $('.nickValue').val();
+            $('.resultUserData').empty();
+            $.get('@Url.Action("FindUser")', { nick: inputNick }).done(function (res) {
+                if ($('div').is('.resultUser')) {
+                    $('.resultUser').remove();
+                }
+                $(".form-search").after(res);
+                //alert('appended result');
+            });
+        });
+        $(document).on("click", ".subscribeButton", function () {
+
+            var subToId = $('.resultUserData').data('sub-to');
+
+            var currUserId = @Model.User.Id;
+            if(subToId != currUserId){
+                
+                $.get('@Url.Action("AddSubcribtion")', { userId:currUserId, subTo:subToId }).done(function (res) {
+                    if(res.Added){
+                    
+                        $('.subscribersCountNumber').html(+$('.subscribersCountNumber').html()+1);
+                        $('.subscribeButton').html('Отписаться');
+                    }
+                    else{
+                    
+                        $('.subscribersCountNumber').html(+$('.subscribersCountNumber').html()-1);
+                        $('.subscribeButton').html('Подписаться');
+                    }
+                    $('.resultUserContainer').remove();
+                });
+            }
+            else{
+                alert('Подписка на самого себя невозможна');
+            }
+            
+        });
+        /*$(document).on("click", ".subIconContaner", function () {
+
+            var followId = $('.subIconContaner').data('user-id');
+            alert(followId)
+            $.get('Url.Action("UserProfile")', { userId: followId }).done(function (res) {
+                alert('done');
+            });
+        });*/
+    });
+</script>
+
+<h3>Добро пожаловать, @Model.User.Nickname</h3> 
+
+<div>
+    @Html.ActionLink("Редактировать профиль", "EditProfile")
+</div>
+
+@if (Model.SubsPanel.Subs.Count != 0)
+{
+    <h4>Подписки:</h4>
+    foreach (var sub in Model.SubsPanel.Subs)
+    {
+        <div class="subIconContaner container" data-user-id="@sub.FollowingUserId" onclick="location.href='@Url.Action("UserProfile", new { userId = sub.FollowingUserId })'">
+            <div class="row subAvatar">
+                <img onerror="this.src='@Url.Content("~/Content/user.png")'" src="@Url.Action("Avatar",new {Id=sub.FollowingUserId })" style="width: 100%" title="Avatar" />
+            </div>
+            <div class="row subNick">
+                @sub.FollowingUserNickname
+            </div>
+        </div>
+    }
+}
+
+<form class="form-search">
+    <div class="searchLayer">Найти пользователя</div>
+    <input type="text" class="input-medium search-query nickValue">
+    <div class="btn doFind">Найти</div>
+</form>
+<a href="javascript:void(0);" onclick="Create();">Добавить пост</a>
+<div id="CreateForm">
+</div>
+<div id="MainContainer">
+    <h2>Ваши посты:</h2>
+    @if (Model.UserPosts != null)
+    {
+        if (Model.UserPosts.Posts.Count != 0)
+        {
+            foreach (var post in Model.UserPosts.Posts)
+            {
+                Html.RenderPartial("_PostView", post);
+            }
+        }
+        else
+        {
+            <h1>У Вас пока нет постов :(</h1>
+        }
+
+    }
+    else
+    {
+        <h1>У Вас пока нет постов :(</h1>
+    }
+</div>
+
+<!-- Modal -->
+<div id="postModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+
+            </div>
+        </div>
+
+    </div>
+</div>
+

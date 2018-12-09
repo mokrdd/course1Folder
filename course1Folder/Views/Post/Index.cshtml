@@ -1,0 +1,73 @@
+﻿@model course1Folder.Models.FeedModel
+
+<script type="text/template" id="ComTemplate">
+    @Html.Raw(Html.Partial("_commentTemplate"))
+</script>
+<style>
+    .exactlyNumberOfLikes {
+        display: inline-block;
+    }
+
+    .PostWrapper {
+        display: inline-block;
+    }
+
+    .Img_Preview {
+        max-width: 150px;
+        max-height: 150px;
+        border-radius: 15px;
+        cursor: crosshair;
+    }
+
+        .Img_Preview:hover {
+            border: 2px dashed red;
+        }
+
+    .PostDiv {
+        border: 2px blue solid;
+    }
+</style>
+
+<div id="MainContainer" class="container">
+    @if (Model.Posts != null)
+    {
+        if (Model.Posts.Count != 0)
+        {
+            foreach (var post in Model.Posts)
+            {
+                Html.RenderPartial("_PostView", post);
+            }
+        }
+        else
+        {
+            <h1>У пользователей, на которых Вы подписаны, нет постов :(</h1>
+        }
+
+    }
+    else
+    {
+        <h1>У вас нет подписок :(</h1>
+    }
+</div>
+@if (Model.NextExist)
+{
+    <a href="javascript:void(0);" class="next_link" onclick="NextPage()">Next...</a>
+}
+
+<!-- Modal -->
+<div id="postModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+
+            </div>
+        </div>
+
+    </div>
+</div>
+

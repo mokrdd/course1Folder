@@ -1,0 +1,74 @@
+﻿@model course1Folder.BLL.DTO.PostDTO
+
+<div class="fullPostContainer postInfo" data-post-id="@Model.Id">
+    <div class="container" style="justify-content: center;display: flex;">
+        <div class="container111">
+            <div class="slider">
+                @foreach (var image in Model.Photos)
+            {
+                    <img src='@Url.Action("GetImage")/@image.Id' class='photo' />
+                }
+            </div>
+            <div class="row" id="navi">
+                <div class="col-sm-1 slideLeft fix">
+                    <i class="fas fa-chevron-left lilBigger"></i>
+                </div>
+                <div class="col-sm-10 likePost fix">
+                    <i class="fas fa-heart doLikeBlock bigger"></i>
+                </div>
+                <div class="col-sm-1 slideRight fix">
+                    <i class="fas fa-chevron-right lilBigger"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="InfoOfPost">
+        <div class="row">
+            <div class="col-sm-4 PhotosCount centre">
+                @Model.Photos.Count <i class="far fa-clone"></i>
+            </div>
+            <div class="col-sm-4 PostCommentsCount centre">
+                @Model.Comments.Count<i class="far fa-comment-alt"></i>
+            </div>
+            <div class="col-sm-4 PostLikesCount doLikeBlock centre">
+                <div class="exactlyNumberOfLikes">@Model.Likes.Count</div>
+                <i class="fas fa-heart likeImage"></i>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 location">
+               Локация: @Model.LocationName
+            </div>
+            <div class="col-md-6 date">
+                Дата: @Model.LoadDate.ToString()
+            </div>
+        </div>
+    </div>
+    <div class="descriptionOfPost">
+       Описание: @Model.Description
+    </div>
+    <div class="comments">
+        <h3>Комментарии:</h3>
+        <div class="existingComments">
+            @foreach (var comment in Model.Comments)
+            {
+                @Html.Raw(Nustache.Core.Render.StringToString(Html.Partial("_commentTemplate").ToString()
+                           ,new { Comments = comment }))
+            }
+
+
+        </div>
+        <div class="addComment" style="margin-top:30px">
+            <div class="row">
+                <div class="col-md-9 ">
+                    <textarea class="CommentText" style="width: 100%"> </textarea>
+                </div>
+                <div class="col-md-3 SendCommentText">
+                    <button class="addCommentButton">Добавить</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

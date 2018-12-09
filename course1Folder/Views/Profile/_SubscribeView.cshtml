@@ -1,0 +1,39 @@
+﻿@model course1Folder.Models.UserWrapper
+
+<div class="resultUserContainer">
+    @if (Model != null)
+    {
+        <div class="row resultUserData" data-sub-to="@Model.Id">
+            <div class="col-md-4">
+                <img onerror="this.src='@Url.Content("~/Content/user.png")'" src="@Url.Action("Avatar",new {Id=Model.Id })" style="width: 100%" title="Avatar" />
+            </div>
+            <div class="col-md-8">
+                <div class="row nickname">
+                    <h2 style="display:inline-block">Ник:</h2> @Model.Nickname
+                </div>
+                <div class="row birthDate">
+                    <h2 style="display:inline-block">Дата рождения:</h2> @Model.BirthDate
+                </div>
+                <div class="row subscribersCountBlock">
+                    <h2 style="display:inline-block">Подписчиков:</h2> <div class="subscribersCountNumber">@Model.SubscribersCount</div>
+                </div>
+                @if (Model.CurrUserSubed)
+                {
+                    <div class="row">
+                        <button class="subscribeButton">Отписаться</button>
+                    </div>
+                }
+                else
+                {
+                    <div class="row">
+                        <button class="subscribeButton">Подписаться</button>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <p class="userResponce">Пользователь не найден :(</p>
+    }
+</div>

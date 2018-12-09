@@ -1,0 +1,41 @@
+﻿@model course1Folder.BLL.DTO.PostDTO
+@{//все фотки находятся в Model.Photos, надо собрать их в массив js и отобразить только первую, как обложка поста}
+
+}
+<script>
+    $(function () {
+        var bool='@(Model.CurrentUserLiked==true ? 1 : 0)'=='1';
+        if (bool) {
+            $('.postInfo[data-post-id="@Model.Id"]').find('.likeImage').addClass('userLiked').removeClass('userDidntLike');
+        }
+    });
+
+
+</script>
+
+<div class="PostWrapper container postInfo" data-post-id="@Model.Id">
+    <div class="row">
+        <div class="col-12 PostImages" data-post-id="@Model.Id">
+            <img src='@Url.Action("GetImage")/@Model.Photos.FirstOrDefault().Id' />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4 PhotosCount centre">
+            @Model.Photos.Count <i class="far fa-clone"></i>
+        </div>
+        <div class="col-sm-4 PostCommentsCount centre">
+            @Model.Comments.Count<i class="far fa-comment-alt"></i>
+        </div>
+        <div class="col-sm-4 PostLikesCount doLikeBlock centre">
+            <div class="exactlyNumberOfLikes">@Model.Likes.Count</div>
+            <i class="fas fa-heart likeImage userDidntLike"></i>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 PostDate">
+            <text>@Model.LoadDate.ToString()</text>
+        </div>
+    </div>
+</div>
+
+
