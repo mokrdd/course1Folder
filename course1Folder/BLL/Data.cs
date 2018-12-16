@@ -324,7 +324,7 @@ namespace course1Folder.BLL
 
                 if (subs.Count == 0)
                 {
-                    return null;
+                    return res;
                 }
 
                 foreach (var sub in subs)

@@ -1,8 +1,23 @@
 ﻿@model course1Folder.Models.FeedModel
-@foreach (var post in Model.Posts)
+
+@if (Model.Posts != null)
 {
-    Html.RenderPartial("_PostView", post);
+
+    if (Model.Posts.Count != 0) {
+        foreach (var post in Model.Posts)
+        {
+            Html.RenderPartial("_PostView", post);
+        }
+    }else
+    {
+        <h3>У ваших подписок нет постов</h3>
+    }
 }
+else
+{
+   <h3>У вас нет подписок</h3> 
+}
+
 <script>
     ExistInit('@(Model.NextExist?1:0)')
 </script>

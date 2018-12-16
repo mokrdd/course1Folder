@@ -14,9 +14,10 @@ namespace course1Folder.Controllers
         // GET: Post
         public ActionResult Index()
         {
-            var model = new Models.FeedModel { };
+            var model = new Models.FeedModel { NextExist=false};
             model.Posts = BLL.Data.GetPostsModeDB(0, _currentUserId);
-            model.NextExist = BLL.Data.GetPostsModeDB(1, _currentUserId).Any();
+            if(model.Posts != null)
+                model.NextExist = BLL.Data.GetPostsModeDB(1, _currentUserId).Any();
 
             return View(model);
         }
