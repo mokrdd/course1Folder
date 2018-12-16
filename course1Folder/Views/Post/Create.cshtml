@@ -27,8 +27,10 @@
 
 
         $.post('@Url.Action("Create")', fd).done(function (res) {
-            if (res.Success)
-                $('#PicturesDiv').empty();
+            if (typeof res != "undefined")
+                $('.myPosts').prepend(res);
+            var excess = $('.myPosts').children().last();
+            excess.remove();
         });
         $('#CreateForm').hide();
 
@@ -53,7 +55,6 @@
 
                 if (res.Success) {
                     $("#PicturesDiv").append("<img src='@Url.Action("GetImage")/" + res.Result + "'  class='Img_Preview'  data-image-id='" + res.Result + "'/>")
-
 
                     var html = $(elem).parent().html();
                     $(elem).parent().html(html);

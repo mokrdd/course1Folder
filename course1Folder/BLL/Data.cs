@@ -131,7 +131,7 @@ namespace course1Folder.BLL
             }
         }
 
-        public static void CreateUpdatePost(PostDTO post)
+        public static long? CreateUpdatePost(PostDTO post)
         {
             using (var ctx = new DAL.instDBEntities())
             {
@@ -153,6 +153,8 @@ namespace course1Folder.BLL
 
                 ctx.Posts.Add(dbPost);
                 ctx.SaveChanges();
+
+                return dbPost.Id;
             }
         }
 
@@ -302,15 +304,16 @@ namespace course1Folder.BLL
                 
         }
 
-        public static List<PostDTO> GetPostsDB(int page = 0, long? userId = null)
+        public static List<PostDTO> GetPostsModeDB(int page = 0, long? userId = null,sortMode mode = sortMode.newest)
         {
             var take = 3;
             var skip = take * page;
             var res = (List<PostDTO>)null;
             using (var ctx = new DAL.instDBEntities())
             {
-
-                var subs = ctx.Subscribes.Where(x => x.UserId == userId).Select(x => new SubDTO {
+                
+                var subs = ctx.Subscribes.Where(x => x.UserId == userId).Select(x => new SubDTO
+                {
                     Id = x.Id,
                     UserId = x.UserId,
                     FollowingId = x.FollowingId,
@@ -323,7 +326,7 @@ namespace course1Folder.BLL
                 {
                     return null;
                 }
-                
+
                 foreach (var sub in subs)
                 {
                     var currPosts = ctx.Posts.Where(x => x.UserId == sub.FollowingId).ToList();
@@ -331,39 +334,75 @@ namespace course1Folder.BLL
                         postsList.Add(post);
                 }
 
-                res = postsList.OrderByDescending(x => x.PublicateDate).Skip(skip).Take(take).Select(x=> new PostDTO {
-                        Id=x.Id,
+                if (mode == sortMode.newest)
+                {
+                    res = postsList.OrderByDescending(x => x.PublicateDate).Skip(skip).Take(take).Select(x => new PostDTO
+                    {
+                        Id = x.Id,
                         LoadDate = x.LoadDate,
                         UserId = x.UserId,
                         Description = x.Description,
                         LocationName = x.LocationName,
                         PublicateDate = x.PublicateDate,
-                        
+
                     }).ToList();
+                }
+                if (mode == sortMode.liked)
+                {
+                    res = postsList.OrderByDescending(x => x.Likes.Count).Skip(skip).Take(take).Select(x => new PostDTO
+                    {
+                        Id = x.Id,
+                        LoadDate = x.LoadDate,
+                        UserId = x.UserId,
+                        Description = x.Description,
+                        LocationName = x.LocationName,
+                        PublicateDate = x.PublicateDate
+
+                    }).ToList();
+                }
+
 
                 CollectData(res, userId.Value);
+
             }
 
             return res;
         }
 
-        public static List<PostDTO> GetPostsOfUserDB(long userId,long? currUser=null)
+
+        public static List<PostDTO> GetPostsOfUserDB(long userId,long? currUser=null, sortMode mode = sortMode.newest, int page = 0)
         {
+            var take = 3;
+            var skip = take * page;
             var res = (List<PostDTO>)null;
             using (var ctx = new DAL.instDBEntities())
             {
+                if (mode == sortMode.newest)
+                {
+                    res = ctx.Posts.OrderByDescending(x => x.PublicateDate).Where(x => x.UserId == userId).Skip(skip).Take(take).Select(x => new PostDTO
+                    {
+                        Id = x.Id,
+                        LoadDate = x.LoadDate,
+                        UserId = x.UserId,
+                        Description = x.Description,
+                        LocationName = x.LocationName,
+                        PublicateDate = x.PublicateDate,
 
-                List<DAL.Posts> postsList = new List<DAL.Posts>();
+                    }).ToList();
+                }
+                if (mode == sortMode.liked)
+                {
+                    res = ctx.Posts.OrderByDescending(x => x.Likes.Count).Where(x => x.UserId == userId).Skip(skip).Take(take).Select(x => new PostDTO
+                    {
+                        Id = x.Id,
+                        LoadDate = x.LoadDate,
+                        UserId = x.UserId,
+                        Description = x.Description,
+                        LocationName = x.LocationName,
+                        PublicateDate = x.PublicateDate
 
-                res= ctx.Posts.OrderByDescending(x => x.LoadDate).Where(x => x.UserId == userId).Select(x=> new PostDTO {
-                    Id = x.Id,
-                    LoadDate = x.LoadDate,
-                    UserId = x.UserId,
-                    Description = x.Description,
-                    LocationName = x.LocationName,
-                    PublicateDate = x.PublicateDate,
-                }).ToList();
-
+                    }).ToList();
+                }
 
                 CollectData(res, userId,currUser);
             }
@@ -377,7 +416,7 @@ namespace course1Folder.BLL
             var res = (PostDTO)null;
             using (var ctx = new DAL.instDBEntities())
             {
-                res = ctx.Posts.Where(x => x.Id == id).Select(x => new PostDTO
+                var postDB = ctx.Posts.Where(x => x.Id == id).Select(x => new PostDTO
                 {
                     Id = x.Id,
                     LoadDate = x.LoadDate,
@@ -385,35 +424,11 @@ namespace course1Folder.BLL
                     Description = x.Description,
                     LocationName = x.LocationName,
                     PublicateDate = x.PublicateDate
-                }).FirstOrDefault();
-
-                res.Photos = ctx.Photos.Where(x => x.PostId == id).Select(x => new PhotoDTO
-                {
-                    Id = x.Id,
-                    UserId = x.UserId,
-                    PostId = x.PostId,
-                    LoadDate = x.LoadDate
                 }).ToList();
 
-                res.Likes = ctx.Likes.Where(x => x.PostId == id).Select(x => new LikesDTO
-                {
-                    Id=x.Id,
-                    PostId=x.PostId,
-                    Date = x.Date,
-                    UserId=x.UserId
-                }).ToList();
+                CollectData(postDB, postDB[0].UserId, postDB[0].UserId);
 
-                res.Comments= ctx.Comments.Where(x => x.PostId == id).Select(x => new CommentDTO
-                {
-                    Id = x.Id,
-                    UserId = x.UserId,
-                    PostId = x.PostId,
-                    Date = x.Date,
-                    DateString = x.Date.ToString(),
-                    ContentText=x.ContentText,
-                    UserNick=x.Users.Nickname
-                   
-                }).ToList();
+                res = postDB.FirstOrDefault();
             }
 
             return res;
@@ -529,7 +544,6 @@ namespace course1Folder.BLL
                 {
                     Id = x.Id,
                     FollowingUserId = x.FollowingId,
-                    //вот тут такое
                     FollowingUserNickname = x.Users1.Nickname
                 }).ToList();
 
@@ -538,5 +552,46 @@ namespace course1Folder.BLL
             }
         }
 
+        public static SubModel GetSubIcon(long subTo)
+        {
+            using (var ctx = new DAL.instDBEntities())
+            {
+                var sub = ctx.Subscribes.Where(x => x.FollowingId == subTo && x.isActive == true).Select(x => new SubModel
+                {
+                    Id = x.Id,
+                    FollowingUserId = x.FollowingId,
+                    FollowingUserNickname = x.Users1.Nickname
+                }).FirstOrDefault();
+
+
+                return sub;
+            }
+        }
+
+        public static void DeletePostDB(long id)
+        {
+            using (var ctx = new DAL.instDBEntities())
+            {
+                var post = ctx.Posts.FirstOrDefault(x => x.Id == id);
+                if (post == null)
+                    return;
+                var likes = ctx.Likes.Where(x => x.PostId == post.Id).ToList();
+                var comments = ctx.Comments.Where(x => x.PostId == post.Id).ToList();
+                var photos = ctx.Photos.Where(x => x.PostId == post.Id).ToList();
+
+                foreach(var like in likes)
+                    ctx.Likes.Remove(like);
+
+                foreach (var comment in comments)
+                    ctx.Comments.Remove(comment);
+
+                foreach (var photo in photos)
+                    ctx.Photos.Remove(photo);
+
+                ctx.Posts.Remove(post);
+
+                ctx.SaveChanges();
+            }
+        }
     }
 }

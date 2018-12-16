@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="5ead2735c0eb479ab6557afa5ce42abe" Name="Diagram1">
+        <EntityTypeShape EntityType="instDBModel.Comments" Width="1.5" PointX="5.25" PointY="11.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="instDBModel.Likes" Width="1.5" PointX="5.25" PointY="15" IsExpanded="true" />
+        <EntityTypeShape EntityType="instDBModel.Photos" Width="1.5" PointX="8.25" PointY="11.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="instDBModel.Posts" Width="1.5" PointX="3" PointY="15.875" IsExpanded="true" />
+        <EntityTypeShape EntityType="instDBModel.Subscribes" Width="1.5" PointX="3" PointY="19.625" IsExpanded="true" />
+        <EntityTypeShape EntityType="instDBModel.Users" Width="1.5" PointX="0.75" PointY="7.25" IsExpanded="true" />
+        <AssociationConnector Association="instDBModel.FK_Comments_Posts" ManuallyRouted="false" />
+        <AssociationConnector Association="instDBModel.FK_Comments_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="instDBModel.FK_Likes_Posts" ManuallyRouted="false" />
+        <AssociationConnector Association="instDBModel.FK_Likes_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="instDBModel.FK_Photos_Posts" ManuallyRouted="false" />
+        <AssociationConnector Association="instDBModel.FK_Photos_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="instDBModel.FK_Posts_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="instDBModel.FK_Subscribes_Users" ManuallyRouted="false" />
+        <AssociationConnector Association="instDBModel.FK_Subscribes_Users1" ManuallyRouted="false" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

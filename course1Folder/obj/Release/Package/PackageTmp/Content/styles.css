@@ -1,6 +1,22 @@
 ﻿body{
 
 }
+
+.subIconContaner{
+    width:100px;
+    height:100px;
+    display: inline-block;
+    margin: 20px;
+}
+.subIconContaner:hover{
+    box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+.subNick{
+    display:flex;
+    justify-content:center;
+    align-items: center;
+
+}
 .SuperContainer{
     display: flex;
 }
@@ -27,6 +43,11 @@
     box-shadow: 0 0 10px rgba(0,0,0,0.5);
     width: 256px;
 }
+
+.PostWrapper:hover{
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+}
+
 .modal-header{
     padding: 0;
 }

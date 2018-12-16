@@ -1,16 +1,34 @@
-﻿body{
-
+﻿h4{
+    margin:0;
 }
 
-.subIconContaner{
+.btn{
+    background-color:cornflowerblue;
+    color:white;
+}
+
+.inline{
+    display:inline-block;
+}
+
+.sortByContainer{
+   margin-top: 10px;
+}
+
+.activeSortMode{
+    background:cornflowerblue;
+    color:white;
+    border-radius: 20px;
+    padding: 5px;
+}
+
+.subHoverIconContaner{
     width:100px;
     height:100px;
     display: inline-block;
     margin: 20px;
 }
-.subIconContaner:hover{
-    box-shadow: 0 0 10px rgba(0,0,0,0.5);
-}
+
 .subNick{
     display:flex;
     justify-content:center;
@@ -89,14 +107,17 @@ button.close{
 }
 
 .bigger{
+    
+    color:#f78282;
     opacity:0;
-    font-size: 5.5em;
+    font-size: 6em;
 }
 .bigger:hover{
-    opacity:0.7;
+    opacity:0.9;
 }
 
 .lilBigger{
+    background:#808080;
     color: #fefffd;
     font-size: 1.5em;
 }

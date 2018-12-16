@@ -7,8 +7,11 @@
     @Html.Raw(Html.Partial("_commentTemplate"))
 </script>
 <script>
-    
     $(function () {
+        $('.unsub').hide();
+
+
+        var numOfSubscribes = +(@Model.SubsPanel.Subs.Count);
         $(document).on("click", ".doFind", function () {
             $('.userResponce').remove();
             var inputNick = $('.nickValue').val();
@@ -18,36 +21,103 @@
                     $('.resultUser').remove();
                 }
                 $(".form-search").after(res);
-                //alert('appended result');
+
             });
         });
+
+        $(document).on("mouseenter mouseleave", ".subHoverIconContaner", function () {
+            var elem = $(this).find('.unsub');
+            elem.toggle(200);
+        });
+
+        $(document).on("click", ".unsubLink", function () {
+            var elem = $(this).closest('.subHoverIconContaner');
+            var subToId=elem.data('user-id');
+         
+            var currUserId = @Model.User.Id;
+            $.get('@Url.Action("AddSubcribtion")', { userId:currUserId, subTo:subToId }).done(function (res) {
+                if(res.Success){
+                    if(!res.Added){
+                        alert('unsubed')
+                        elem.remove();
+                        numOfSubscribes--;
+                        if(numOfSubscribes == 0){
+
+                            $('.noSubsMessage').show();
+                        }
+                    }
+                }
+
+            });
+        });
+
+        $(document).on("click", ".deletePost", function () {
+            var postid=$('.fullPostContainer').data('post-id');
+
+            $.post('@Url.Action("DeletePost")', { id: postid }).done(function (res) {
+                if(res.Success){
+                    $('.PostWrapper[data-post-id="' + postid + '"]').remove();
+                    $('#postModal').modal('hide');
+                }
+
+            });
+        });
+
         $(document).on("click", ".subscribeButton", function () {
 
             var subToId = $('.resultUserData').data('sub-to');
-
             var currUserId = @Model.User.Id;
+
+            var sel = ".subHoverIconContaner[data-user-id=\"" + subToId + "\"]";
+            var elem = $(sel);
+
+            var addingRes;
+
+            $.ajaxSetup({async:false});
             if(subToId != currUserId){
-                
+
                 $.get('@Url.Action("AddSubcribtion")', { userId:currUserId, subTo:subToId }).done(function (res) {
                     if(res.Added){
-                    
+
                         $('.subscribersCountNumber').html(+$('.subscribersCountNumber').html()+1);
                         $('.subscribeButton').html('Отписаться');
                     }
                     else{
-                    
+                        numOfSubscribes--;
+                        if(numOfSubscribes == 0){
+
+                            $('.noSubsMessage').show();
+                        }
+                        elem.remove();
                         $('.subscribersCountNumber').html(+$('.subscribersCountNumber').html()-1);
                         $('.subscribeButton').html('Подписаться');
                     }
                     $('.resultUserContainer').remove();
+                    addingRes=res.Added;
                 });
             }
             else{
+                $('.resultUserContainer').remove();
                 alert('Подписка на самого себя невозможна');
             }
-            
+
+            if(addingRes){
+                $.get('@Url.Action("AddSubOnPanel")', {subTo:subToId }).done(function (res) {
+                    //если добавляем первую подписку, то убираем сообщение об остуствии подписок
+                    if(numOfSubscribes == 0){
+                        $('.noSubsMessage').hide();
+                    }
+                    numOfSubscribes++;
+                    $('.subsPanelContainer').append(res);
+                });
+            }
+
+
         });
         /*$(document).on("click", ".subIconContaner", function () {
+
+
+        1212122 Html.ActionLink("Редактировать профиль", "EditProfile")
 
             var followId = $('.subIconContaner').data('user-id');
             alert(followId)
@@ -58,58 +128,90 @@
     });
 </script>
 
-<h3>Добро пожаловать, @Model.User.Nickname</h3> 
-
-<div>
-    @Html.ActionLink("Редактировать профиль", "EditProfile")
+<div class="row">
+    <div class="col-xs-9">
+        <h3 class="profileNick" data-user-id="@Model.User.Id">Добро пожаловать, @Model.User.Nickname</h3>
+    </div>
+    <div class="col-xs-3 editContainer" onclick="location.href='@Url.Action("EditProfile")'">
+        <div class="btn" style="margin-top: 2vh;">Редактировать</div>
+    </div>
 </div>
 
-@if (Model.SubsPanel.Subs.Count != 0)
-{
-    <h4>Подписки:</h4>
-    foreach (var sub in Model.SubsPanel.Subs)
-    {
-        <div class="subIconContaner container" data-user-id="@sub.FollowingUserId" onclick="location.href='@Url.Action("UserProfile", new { userId = sub.FollowingUserId })'">
-            <div class="row subAvatar">
-                <img onerror="this.src='@Url.Content("~/Content/user.png")'" src="@Url.Action("Avatar",new {Id=sub.FollowingUserId })" style="width: 100%" title="Avatar" />
-            </div>
-            <div class="row subNick">
-                @sub.FollowingUserNickname
-            </div>
-        </div>
-    }
-}
 
-<form class="form-search">
-    <div class="searchLayer">Найти пользователя</div>
-    <input type="text" class="input-medium search-query nickValue">
-    <div class="btn doFind">Найти</div>
-</form>
-<a href="javascript:void(0);" onclick="Create();">Добавить пост</a>
-<div id="CreateForm">
-</div>
-<div id="MainContainer">
-    <h2>Ваши посты:</h2>
-    @if (Model.UserPosts != null)
+<h4>Подписки:</h4>
+<div class="subsPanelContainer container">
+    @if (Model.SubsPanel.Subs.Count != 0)
     {
-        if (Model.UserPosts.Posts.Count != 0)
+        foreach (var sub in Model.SubsPanel.Subs)
         {
-            foreach (var post in Model.UserPosts.Posts)
-            {
-                Html.RenderPartial("_PostView", post);
-            }
-        }
-        else
-        {
-            <h1>У Вас пока нет постов :(</h1>
-        }
 
+            Html.RenderPartial("_SubIconView", sub);
+
+            /*<div class="subIconContaner container" data-user-id="@sub.FollowingUserId" onclick="location.href='@Url.Action("UserProfile", new { userId = sub.FollowingUserId })'">
+                <div class="row subAvatar">
+                    <img onerror="this.src='@Url.Content("~/Content/user.png")'" src="@Url.Action("Avatar",new {Id=sub.FollowingUserId })" style="width: 100%" title="Avatar" />
+                </div>
+                <div class="row subNick">
+                    @sub.FollowingUserNickname
+                </div>
+            </div>*/
+        }
+        <h2 class="noSubsMessage" style="display:none"> Вы ни на кого не подписаны</h2>
     }
     else
     {
-        <h1>У Вас пока нет постов :(</h1>
+        <h2 class="noSubsMessage"> Вы ни на кого не подписаны</h2>
     }
 </div>
+
+<form class="form-search" style="margin-top:20px">
+    <div class="row">
+        <div class="col-xs-4 searchLayer" style="text-align: right;">
+            Найти пользователя
+        </div>
+        <div class="col-xs-4 centre">
+            <input type="text" class="input-medium search-query nickValue ">
+        </div>
+        <div class="col-xs-4">
+            <div class="btn doFind">Найти</div>
+        </div>
+    </div>
+</form>
+
+
+<div id="MainContainer">
+    <h2>Ваши посты:</h2>
+    <a href="javascript:void(0);" class="btn" onclick="Create();">Добавить пост</a>
+    <div id="CreateForm">
+    </div>
+
+    <div class="container myPosts">
+        @if (Model.UserPosts != null)
+        {
+            if (Model.UserPosts.Posts.Count != 0)
+            {
+                foreach (var post in Model.UserPosts.Posts)
+                {
+                    Html.RenderPartial("_PostView", post);
+                }
+            }
+            else
+            {
+                <h2>У Вас пока нет постов :(</h2>
+            }
+
+        }
+        else
+        {
+            <h2>У Вас пока нет постов :(</h2>
+        }
+    </div>
+
+</div>
+@if (Model.UserPosts.NextExist)
+{
+    <a href="javascript:void(0);" class="next_link nextNewestProf">Next...</a>
+}
 
 <!-- Modal -->
 <div id="postModal" class="modal fade" role="dialog">
@@ -118,6 +220,10 @@
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
+                <div class="container" style="display:inline-block; margin-left: 40%;">
+                    <a href="javascript:void(0);" class="deletePost" style="color:red; font-size: 1.2em;">Удалить</a>
+                </div>
+
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">

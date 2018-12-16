@@ -20,8 +20,6 @@ namespace course1Folder.DAL
             this.Comments = new HashSet<Comments>();
             this.Likes = new HashSet<Likes>();
             this.Photos = new HashSet<Photos>();
-            this.PostPicture = new HashSet<PostPicture>();
-            this.PostTags = new HashSet<PostTags>();
         }
     
         public long Id { get; set; }
@@ -37,10 +35,6 @@ namespace course1Folder.DAL
         public virtual ICollection<Likes> Likes { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Photos> Photos { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<PostPicture> PostPicture { get; set; }
         public virtual Users Users { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<PostTags> PostTags { get; set; }
     }
 }

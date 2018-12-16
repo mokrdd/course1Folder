@@ -18,128 +18,225 @@
     
     <script>
 
-    var currentPage = 0;
-    function InitForm() {
-        $("#CreateForm").html("");
-    }
-
-    function NextPage() {
-        var nextPage = currentPage + 1;
-        $.get("@Url.Action("GetPosts","Post")", { page: nextPage }).done(function (res) {
-            $("#MainContainer").append(res);
-            currentPage = nextPage;
-        });
-    }
-
-
-    function AddLike() {
-        var post = $(this).closest(".postInfo");
-        var postId = post.data("post-id");
-        var sel = ".postInfo[data-post-id=\"" + postId + "\"]";
-        var elem = $(sel);
-
-        var numOfLikes = $(this).closest(".postInfo").find(".exactlyNumberOfLikes").text();
-
-
-        $.post('@Url.Action("LikePost", "Post")', { id: postId }).done(function (res) {
-            if (res.Success) {
-                if (res.Added) {
-                    elem.find('.likeImage').addClass('userLiked').removeClass('userDidntLike');
-                    elem.find(".exactlyNumberOfLikes").text(parseInt(numOfLikes) + 1);
-                }
-                else {
-                    elem.find('.likeImage').addClass('userDidntLike').removeClass('userLiked');
-                    elem.find(".exactlyNumberOfLikes").text(parseInt(numOfLikes) - 1);
-                }
-
-            }
-        });
-    }
-
-    function Create() {
-        $.get("@Url.Action("Create", "Post")").done(function (res) {
-            $("#CreateForm").html(res);
-        });
-    }
-
-    function getFormData(selector) {
-        var $form = $(selector);
-        const unindexedArray = $form.find(':input').serializeArray();
-        const indexedArray = {};
-
-        $.map(unindexedArray, function (n) {
-            indexedArray[n.name] = n.value.trim();
-        });
-
-        return indexedArray;
-    }
-
-
-    function ExistInit(a) {
-        if (a == '0') {
-            $(".next_link").hide();
+        var currentPage = 0;
+        function InitForm() {
+            $("#CreateForm").html("");
         }
-    }
 
-    function openModalPost() {
-        var postId = $(this).closest('.PostWrapper').data("post-id");
-        alert(postId);
-        $.get("@Url.Action("GetPostFull", "Post")", { id: postId }).done(function (res) {
-            $('.modal-body').append(res);
-            $('.slider').slick({
-                nextArrow: $(".slideRight"),
-                prevArrow: $(".slideLeft"),
-                speed: 10
-            });
-        });
-
-        $('#postModal').modal('show');
-        //слайдер отказывается показывать фотки, пока не сменишь слайд
-        $('#postModal').on('shown.bs.modal', function () {
-            $(".slideLeft").click();
-            $(".slideRight").click();
-
-        });
-    }
-
-
-    $(function () {
-        $("#postModal").on("hidden.bs.modal", function () {
-            $('.modal-body').empty();
-            $('body').css({'overflow-y':'auto'});
-            $('.slider').unslick();
-        });
-        $(document).on("click", ".doLikeBlock", AddLike);
-        $(document).on("click", ".PostImages", openModalPost);
-        $(document).on("click", ".PhotosCount", openModalPost);
-        $(document).on("click", ".PostCommentsCount", openModalPost);
-        $(document).on("click", ".PostDate", openModalPost);
-        $(document).on("click", ".addCommentButton", SendCommentTextClick)
-    });
-
-    function RenderCommentHtml(data) {
-        var temp = $("#ComTemplate").html();
-        var template = Hogan.compile(temp);
-        return template.render(data);
-    }
-
-    function SendCommentTextClick(e) {
-        e.preventDefault();
-
-        var post = $(this).closest(".fullPostContainer");
-        var comInput = post.find(".CommentText");
-        var postId = post.data("post-id");
-        alert(postId+" "+comInput.val())
-
-        $.post('@Url.Action("AddComment", "Post")', { postId: postId, commentText: comInput.val() }).done(function (res) {
-            if (res.Success) {
-                post.find(".existingComments").append(RenderCommentHtml({ Comments: [res.Result] }))
-                comInput.val('');
+        function NextPageFeed() {
+            if ($('.next_link').hasClass('nextNewest')) {
+                var nextPage = currentPage + 1;
+                $.get("@Url.Action("GetPosts","Post")", { page: nextPage }).done(function (res) {
+                    $("#MainContainer").append(res);
+                    currentPage = nextPage;
+                });
+            }
+            if ($('.next_link').hasClass('nextLiked')) {
+                var nextPage = currentPage + 1;
+                $.get("@Url.Action("GetPostsSortedByLikes", "Post")", { page: nextPage }).done(function (res) {
+                    $("#MainContainer").append(res);
+                    currentPage = nextPage;
+                });
             }
 
+        }
 
+
+        function NextPageProfile() {
+            var userid = $('.profileNick').data('user-id');
+            var check = $('.myPosts').html();
+            if (typeof check != "undefined") {
+                var nextPage = currentPage + 1;
+                $.get("@Url.Action("GetPosts","Profile")", { userId:userid, page: nextPage }).done(function (res) {
+                    $('.myPosts').append(res);
+                    currentPage = nextPage;
+                });
+                return;
+            }
+            if ($('.next_link').hasClass('nextNewestProf')) {
+                var nextPage = currentPage + 1;
+                $.get("@Url.Action("GetPosts","Profile")", { userId:userid, page: nextPage }).done(function (res) {
+                    $("#MainContainer").append(res);
+                    currentPage = nextPage;
+                });
+            }
+            if ($('.next_link').hasClass('nextLikedProf')) {
+
+                var nextPage = currentPage + 1;
+                $.get("@Url.Action("GetPostsSortedByLikes", "Profile")", { userId: userid, page: nextPage }).done(function (res) {
+                    $("#MainContainer").append(res);
+                    currentPage = nextPage;
+                });
+            }
+
+        }
+
+        function AddLike() {
+            var post = $(this).closest(".postInfo");
+            var postId = post.data("post-id");
+            var sel = ".postInfo[data-post-id=\"" + postId + "\"]";
+            var elem = $(sel);
+
+            var numOfLikes = $(this).closest(".postInfo").find(".exactlyNumberOfLikes").text();
+
+
+            $.post('@Url.Action("LikePost", "Post")', { id: postId }).done(function (res) {
+                if (res.Success) {
+                    if (res.Added) {
+                        elem.find('.likeImage').addClass('userLiked').removeClass('userDidntLike');
+                        elem.find(".exactlyNumberOfLikes").text(parseInt(numOfLikes) + 1);
+                    }
+                    else {
+                        elem.find('.likeImage').addClass('userDidntLike').removeClass('userLiked');
+                        elem.find(".exactlyNumberOfLikes").text(parseInt(numOfLikes) - 1);
+                    }
+
+                }
+            });
+        }
+
+        function Create() {
+            $.get("@Url.Action("Create", "Post")").done(function (res) {
+                $("#CreateForm").html(res);
+                $("#CreateForm").show();
+            });
+        }
+
+        function getFormData(selector) {
+            var $form = $(selector);
+            const unindexedArray = $form.find(':input').serializeArray();
+            const indexedArray = {};
+
+            $.map(unindexedArray, function (n) {
+                indexedArray[n.name] = n.value.trim();
+            });
+
+            return indexedArray;
+        }
+
+
+        function ExistInit(a) {
+            if (a == '0') {
+                $(".next_link").hide();
+            }
+        }
+
+        function openModalPost() {
+            var postId = $(this).closest('.PostWrapper').data("post-id");
+
+            $.ajaxSetup({ async: false });
+            $.get("@Url.Action("GetPostFull", "Post")", { id: postId }).done(function (res) {
+                $('.modal-body').append(res);
+                $('.slider').slick({
+                    nextArrow: $(".slideRight"),
+                    prevArrow: $(".slideLeft"),
+                    speed: 10,
+                    swipeToSlide:true
+                });
+                $('.fix').removeClass('slick-hidden');
+
+            });
+
+            $('#postModal').modal('show');
+            
+            $('#postModal').on('shown.bs.modal', function () {
+                $('.slider')[0].slick.refresh();
+                $('.fix').removeClass('slick-hidden');
+            });
+        }
+
+
+        $(function () {
+            $("#postModal").on("hidden.bs.modal", function () {
+                $('.modal-body').empty();
+                $('body').css({'overflow-y':'auto'});
+            });
+            $(document).on("click", ".doLikeBlock", AddLike);
+            $(document).on("click", ".PostImages,.PhotosCount,.PostCommentsCount,.PostDate", openModalPost);
+            $(document).on("click", ".addCommentButton", SendCommentTextClick)
+            $(document).on("click", ".newest,.moreLiked", SortForFeed)
+            $(document).on("click", ".newestProf,.moreLikedProf", SortForProfile)
+            $(document).on("click", ".nextNewest,.nextLiked", NextPageFeed)
+            $(document).on("click", ".nextNewestProf,.nextLikedProf", NextPageProfile)
         });
-    }
+
+        function SortForFeed() {
+            if (!$('.moreLiked').hasClass('activeSortMode')) {
+                $(".next_link").show();
+                currentPage = 0;
+                $('#MainContainer').empty();
+                $.get("@Url.Action("GetPostsSortedByLikes","Post")").done(function (res) {
+                    $("#MainContainer").append(res);
+                    $('.next_link').removeClass('nextNewest');
+                    $('.next_link').addClass('nextLiked');
+                    $('.newest').removeClass('activeSortMode');
+                    $('.moreLiked').addClass('activeSortMode');
+                });
+            }
+            if (!$('.newest').hasClass('activeSortMode')) {
+                $(".next_link").show();
+                currentPage = 0;
+                $('#MainContainer').empty();
+                $.get("@Url.Action("GetPosts","Post")").done(function (res) {
+                    $("#MainContainer").append(res);
+                    $('.next_link').removeClass('nextLiked');
+                    $('.next_link').addClass('nextNewest');
+                    $('.moreLiked').removeClass('activeSortMode');
+                    $('.newest').addClass('activeSortMode');
+                });
+            }
+        }
+
+        function SortForProfile() {
+            var userid = $('.profileNick').data('user-id');
+            if (!$('.moreLikedProf').hasClass('activeSortMode')) {
+                $(".next_link").show();
+                currentPage = 0;
+                $('#MainContainer').empty();
+                $.get("@Url.Action("GetPostsSortedByLikes","Profile")", { userId: userid }).done(function (res) {
+                    $("#MainContainer").append(res);
+                    $('.next_link').removeClass('nextNewestProf');
+                    $('.next_link').addClass('nextLikedProf');
+                    $('.newestProf').removeClass('activeSortMode');
+                    $('.moreLikedProf').addClass('activeSortMode');
+                });
+            }
+            if (!$('.newestProf').hasClass('activeSortMode')) {
+                $(".next_link").show();
+                currentPage = 0;
+                $('#MainContainer').empty();
+                $.get("@Url.Action("GetPosts", "Profile")", { userId: userid }).done(function (res) {
+                    $("#MainContainer").append(res);
+                    $('.next_link').removeClass('nextLikedProf');
+                    $('.next_link').addClass('nextNewestProf');
+                    $('.moreLikedProf').removeClass('activeSortMode');
+                    $('.newestProf').addClass('activeSortMode');
+                });
+            }
+        }
+
+        function RenderCommentHtml(data) {
+            var temp = $("#ComTemplate").html();
+            var template = Hogan.compile(temp);
+            return template.render(data);
+        }
+
+        function SendCommentTextClick(e) {
+            e.preventDefault();
+
+            var post = $(this).closest(".fullPostContainer");
+            var comInput = post.find(".CommentText");
+            var postId = post.data("post-id");
+
+            $.post('@Url.Action("AddComment", "Post")', { postId: postId, commentText: comInput.val() }).done(function (res) {
+                if (res.Success) {
+                    post.find(".existingComments").append(RenderCommentHtml({ Comments: [res.Result] }))
+                    comInput.val('');
+                }
+
+
+            });
+        }
 
     </script>
 

@@ -46,9 +46,10 @@
         </div>
     </div>
     <div class="descriptionOfPost">
-        @Model.Description
+       Описание: @Model.Description
     </div>
     <div class="comments">
+        <h3>Комментарии:</h3>
         <div class="existingComments">
             @foreach (var comment in Model.Comments)
             {
@@ -58,7 +59,7 @@
 
 
         </div>
-        <div class="addComment">
+        <div class="addComment" style="margin-top:30px">
             <div class="row">
                 <div class="col-md-9 ">
                     <textarea class="CommentText" style="width: 100%"> </textarea>

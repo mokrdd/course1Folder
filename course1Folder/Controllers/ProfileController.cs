@@ -17,13 +17,14 @@ namespace course1Folder.Controllers
         {
             var userDB = BLL.Data.GetUserDB(((CustomPrincipal)User).UserId);
             var subs = BLL.Data.GetAllSubscribtionsForUser(userDB.Id);
-            var posts = BLL.Data.GetPostsOfUserDB(userDB.Id,null);
+            var posts = BLL.Data.GetPostsOfUserDB(userDB.Id);
+            var exists = BLL.Data.GetPostsOfUserDB(userDB.Id, _currentUserId,sortMode.newest,1).Any();
 
             var model = new ProfileModel
             {
                 User = new UserModel(userDB),
                 SubsPanel = new SubsPanelModel { Subs = subs },
-                UserPosts = new FeedModel { NextExist=true,Posts=posts}
+                UserPosts = new FeedModel { NextExist = exists, Posts=posts}
             };
 
             return model;
@@ -81,6 +82,12 @@ namespace course1Folder.Controllers
             return PartialView("_SubscribeView", model);
         }
 
+        public PartialViewResult AddSubOnPanel(long subTo)
+        {
+            var model = BLL.Data.GetSubIcon(subTo);
+            return PartialView("_SubIconView", model);
+        }
+
         public JsonResult AddSubcribtion(long userId,long subTo)
         {
             var result = new JsonResultLikeSub { Success = true };
@@ -97,16 +104,52 @@ namespace course1Folder.Controllers
             return Json(result,JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult UserProfile(long userId)
+        public ActionResult UserProfile(long userId, int page = 0)
         {
             var user = BLL.Data.GetUserDB(userId);
             var posts = BLL.Data.GetPostsOfUserDB(userId, _currentUserId);
+            var exists = BLL.Data.GetPostsOfUserDB(userId, _currentUserId,sortMode.newest,1).Any();
             var model = new ProfileModel
             {
                 User = new UserModel(user),
-                UserPosts = new FeedModel { NextExist = true, Posts = posts }
+                UserPosts = new FeedModel { NextExist = exists, Posts = posts }
             };
             return View(model);
+        }
+
+        public PartialViewResult GetPosts(long userId,int page = 0)
+        {
+            var model = new Models.FeedModel { };
+            model.Posts = BLL.Data.GetPostsOfUserDB(userId, _currentUserId, sortMode.newest, page);
+            model.NextExist = BLL.Data.GetPostsOfUserDB(userId, _currentUserId, sortMode.newest, page+1).Any();
+
+            return PartialView("~/Views/Post/_MorePostsView.cshtml", model);
+        }
+
+        public PartialViewResult GetPostsSortedByLikes(long userId,int page = 0)
+        {
+            var model = new Models.FeedModel { };
+            model.Posts = BLL.Data.GetPostsOfUserDB(userId, _currentUserId, sortMode.liked, page);
+            model.NextExist = BLL.Data.GetPostsOfUserDB(userId, _currentUserId, sortMode.liked, page+1).Any();
+
+            return PartialView("~/Views/Post/_MorePostsView.cshtml", model);
+        }
+
+        [HttpPost]
+        public JsonResult DeletePost(long id)
+        {
+            var result = new JsonResultResponce { Success = true };
+            try
+            {
+                BLL.Data.DeletePostDB(id);
+            }
+            catch (Exception ex)
+            {
+                result.Success = false;
+                result.Result = ex.Message;
+            }
+            return Json(result);
+
         }
     }
 }

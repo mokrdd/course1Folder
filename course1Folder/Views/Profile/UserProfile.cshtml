@@ -5,31 +5,24 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>@Model.User.Nickname</h2>
+<h2 class="profileNick" data-user-id="@Model.User.Id">@Model.User.Nickname</h2>
 <script type="text/template" id="ComTemplate">
     @Html.Raw(Html.Partial("_commentTemplate"))
 </script>
-<div id="MainContainer">
-    @if (Model.UserPosts != null)
-    {
-        if (Model.UserPosts.Posts.Count != 0)
-        {
-            foreach (var post in Model.UserPosts.Posts)
-            {
-                Html.RenderPartial("_PostView", post);
-            }
-        }
-        else
-        {
-            <h1>У Вас пока нет постов :(</h1>
-        }
 
-    }
-    else
-    {
-        <h1>У Вас пока нет постов :(</h1>
-    }
+<div class="sortByContainer container">
+    <div class="categotyLayer inline">Сортировать по:</div>
+    <div class="newestProf inline activeSortMode modes"> Новизне </div>
+    <div class="moreLikedProf inline modes"> Лайкам </div>
 </div>
+
+<div id="MainContainer">
+   @Html.Partial("~/Views/Post/_MorePostsView.cshtml", Model.UserPosts)
+</div>
+@if (Model.UserPosts.NextExist)
+{
+    <a href="javascript:void(0);" class="next_link nextNewestProf">Next...</a>
+}
 
 <!-- Modal -->
 <div id="postModal" class="modal fade" role="dialog">

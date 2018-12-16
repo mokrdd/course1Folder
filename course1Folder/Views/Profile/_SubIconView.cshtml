@@ -1,0 +1,15 @@
+﻿@model course1Folder.Models.SubModel
+
+<div class="subHoverIconContaner container inline" data-user-id="@Model.FollowingUserId">
+    <div class="container unsub" style="color:red; display:none; justify-content:center">
+        <a href="javascript:void(0);" class="unsubLink" style="color:red">Отписаться</a>
+    </div>
+    <div class="subIconContaner" data-user-id="@Model.FollowingUserId" onclick="location.href='@Url.Action("UserProfile", new { userId = Model.FollowingUserId })'">
+        <div class="row subAvatar">
+            <img onerror="this.src='@Url.Content("~/Content/user.png")'" src="@Url.Action("Avatar",new {Id=Model.FollowingUserId })" style="width: 100%" title="Avatar" />
+        </div>
+        <div class="row subNick">
+            @Model.FollowingUserNickname
+        </div>
+    </div>
+</div>

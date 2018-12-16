@@ -1,0 +1,49 @@
+﻿@model course1Folder.Models.ProfileModel
+
+@{
+    ViewBag.Title = "UserProfile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@Model.User.Nickname</h2>
+<script type="text/template" id="ComTemplate">
+    @Html.Raw(Html.Partial("_commentTemplate"))
+</script>
+<div id="MainContainer">
+    @if (Model.UserPosts != null)
+    {
+        if (Model.UserPosts.Posts.Count != 0)
+        {
+            foreach (var post in Model.UserPosts.Posts)
+            {
+                Html.RenderPartial("_PostView", post);
+            }
+        }
+        else
+        {
+            <h1>У Вас пока нет постов :(</h1>
+        }
+
+    }
+    else
+    {
+        <h1>У Вас пока нет постов :(</h1>
+    }
+</div>
+
+<!-- Modal -->
+<div id="postModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+
+            </div>
+        </div>
+
+    </div>
+</div>

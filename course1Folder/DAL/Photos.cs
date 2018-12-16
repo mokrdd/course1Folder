@@ -14,12 +14,6 @@ namespace course1Folder.DAL
     
     public partial class Photos
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public Photos()
-        {
-            this.PostPicture = new HashSet<PostPicture>();
-        }
-    
         public long Id { get; set; }
         public byte[] ImageContent { get; set; }
         public string MimeType { get; set; }
@@ -30,7 +24,5 @@ namespace course1Folder.DAL
     
         public virtual Posts Posts { get; set; }
         public virtual Users Users { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<PostPicture> PostPicture { get; set; }
     }
 }

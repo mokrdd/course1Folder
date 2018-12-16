@@ -13,4 +13,6 @@ namespace course1Folder.Models
         public List<PostDTO> Posts { get; set; }
     }
 
+    public enum sortMode { newest, liked };
+
 }

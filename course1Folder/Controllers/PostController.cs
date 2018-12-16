@@ -15,15 +15,9 @@ namespace course1Folder.Controllers
         public ActionResult Index()
         {
             var model = new Models.FeedModel { };
-            model.Posts = BLL.Data.GetPostsDB(0, _currentUserId);
-            var exists = BLL.Data.GetPostsDB(1, _currentUserId);
-            if(exists == null)
-            {
-                model.NextExist = false;
-                return View(model);
-            }
+            model.Posts = BLL.Data.GetPostsModeDB(0, _currentUserId);
+            model.NextExist = BLL.Data.GetPostsModeDB(1, _currentUserId).Any();
 
-            model.NextExist = BLL.Data.GetPostsDB(1, _currentUserId).Any();
             return View(model);
         }
 
@@ -36,22 +30,13 @@ namespace course1Folder.Controllers
         }
 
         [HttpPost]
-        public JsonResult Create(BLL.DTO.PostDTO model)
+        public PartialViewResult Create(BLL.DTO.PostDTO model)
         {
-            var result = new JsonResultResponce { Success = true };
-            try
-            {
-                model.UserId = ((CustomAuthorization.CustomPrincipal)User).UserId;
-                BLL.Data.CreateUpdatePost(model);
-                var sadas = 5;
-
-            }
-            catch (Exception ex)
-            {
-                result.Success = false;
-                result.Result = ex.Message;
-            }
-            return Json(result);
+           
+            model.UserId = ((CustomAuthorization.CustomPrincipal)User).UserId;
+            var postId = BLL.Data.CreateUpdatePost(model);
+            var resModel = BLL.Data.GetPostById(postId.Value);
+            return PartialView("_PostView", resModel);
         }
 
         [HttpPost]
@@ -108,14 +93,24 @@ namespace course1Folder.Controllers
 
         }
 
-        public PartialViewResult GetPosts(int page)
+        public PartialViewResult GetPosts(int page=0)
         {
             var model = new Models.FeedModel { };
-            model.Posts = BLL.Data.GetPostsDB(page, _currentUserId);
-            model.NextExist = BLL.Data.GetPostsDB(page + 1, _currentUserId).Any();
+            model.Posts = BLL.Data.GetPostsModeDB(page, _currentUserId);
+            model.NextExist = BLL.Data.GetPostsModeDB(page + 1, _currentUserId).Any();
 
             return PartialView("_MorePostsView", model);
         }
+
+        public PartialViewResult GetPostsSortedByLikes(int page=0)
+        {
+            var model = new Models.FeedModel { };
+            model.Posts = BLL.Data.GetPostsModeDB(page, _currentUserId, sortMode.liked);
+            model.NextExist = BLL.Data.GetPostsModeDB(page+1, _currentUserId, sortMode.liked).Any();
+
+            return PartialView("_MorePostsView", model);
+        }
+        
 
         public PartialViewResult GetPost(long id)
         {

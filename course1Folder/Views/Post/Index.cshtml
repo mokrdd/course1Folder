@@ -4,6 +4,9 @@
     @Html.Raw(Html.Partial("_commentTemplate"))
 </script>
 <style>
+    .modes{
+        margin-left:15px;
+    }
     .exactlyNumberOfLikes {
         display: inline-block;
     }
@@ -28,31 +31,22 @@
     }
 </style>
 
-<div id="MainContainer" class="container">
-    @if (Model.Posts != null)
-    {
-        if (Model.Posts.Count != 0)
-        {
-            foreach (var post in Model.Posts)
-            {
-                Html.RenderPartial("_PostView", post);
-            }
-        }
-        else
-        {
-            <h1>У пользователей, на которых Вы подписаны, нет постов :(</h1>
-        }
-
-    }
-    else
-    {
-        <h1>У вас нет подписок :(</h1>
-    }
+<div class="sortByContainer container">
+    <div class="categotyLayer inline">Сортировать по:</div>
+    <div class="newest inline activeSortMode modes"> Новизне </div>
+    <div class="moreLiked inline modes"> Лайкам </div>
 </div>
+
+
+<div id="MainContainer" class="container">
+    @Html.Partial("_MorePostsView", Model)
+</div>
+
 @if (Model.NextExist)
 {
-    <a href="javascript:void(0);" class="next_link" onclick="NextPage()">Next...</a>
+    <a href="javascript:void(0);" class="next_link nextNewest">Next...</a>
 }
+
 
 <!-- Modal -->
 <div id="postModal" class="modal fade" role="dialog">
